@@ -1,0 +1,161 @@
+// 在文件引入音乐源文件
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>日食音量播放器</title>
+	<meta charset="utf-8">
+
+//  css样式部分
+	<style>
+		*{
+			padding: 0;
+			margin: 0;
+		}
+
+		html,body{
+			width: 100%;
+			height: 100%;
+			/*  可以传三个值，第一个为色相 ，第二个为饱和度，第三个为亮度  */
+			background: hsl(194,66%,49%);
+		}
+
+		.wrapper{
+			position: relative;
+			width: 70%;
+			height: 100%;
+			margin: 0 auto;
+			/*border: 1px solid #000;*/
+		}
+
+		.wrapper .title{
+			position: absolute;
+			color: #fff;
+			top: 100px;
+			font-size: 20px;
+			font-weight: bolder;
+		}
+
+		.wrapper .per{
+			position: absolute;
+			color: #fff;
+			top: 100px;
+			font-size: 20px;
+			text-align: center;
+			width: 100%;
+		}
+
+		/* 自适应的正方形 */
+		.wrapper .circle{
+			position: absolute;
+			width: 20%;
+			/*height: 20%;*/
+			padding-top: 20%;
+			/*padding-left: 20%;*/
+			/*border: 1px solid #000;*/
+			border-radius: 50%;
+			top: 30%;
+			left: 30%;
+		}
+
+		.wrapper .circle.r{
+			left: 52%;
+			box-shadow: inset 0 0 50px #ff7;
+			cursor: pointer;
+		}
+
+		.wrapper .circle.l{
+			background: #ffff77;
+			box-shadow: 0 0 50px #ff7;
+		}
+
+	</style>
+</head>
+<body>
+
+//  html代码部分
+	<div class="wrapper">
+		<audio  src="./source/song_1.mp3" preload="auto"></audio>
+		<div class="title">拖动调节音量</div>
+		<div class="per">Volumn</div>
+		<div class="circle l"></div>
+		<div class="circle r"></div>
+	</div>
+// bindEvent(拖拽)
+
+//  以下部分为js代码部分
+var obj = {
+	// 初始化
+	init:function(){
+		// this--->obj
+		this.l = document.getElementsByClassName('l')[0];
+		this.r = document.getElementsByClassName('r')[0];
+		this.bindEvent();
+	},
+	bindEvent:function(){
+		var r = this.r;
+		var body = document.getElementsByTagName('body')[0];
+		var dis;
+		var flag = false;
+		var self = this;
+		r.onmousedown = function(e){
+			console.log(e.clientX);   //拿到当前鼠标位置的x坐标
+			flag = true;
+			dis = e.clientX - r.offsetLeft;
+		};
+		body.onmouseup = function(e){
+			flag = false;
+		};
+		body.onmousemove = function(e){
+			if (!flag) {
+				return;
+			}
+			r.style.left = e.clientX - dis + 'px';
+			self.getPer();
+		};
+	},
+	getPer:function(){
+		var self = this;
+		var per;
+		var l = self.l;
+		var r = self.r;
+		var d = r.clientWidth,
+		rL = r.offsetLeft,
+		rR = r.offsetLeft + d,
+		lL = l.offsetLeft,
+		lR = l.offsetLeft + d;
+		// 想离
+		if( lL > rR || rL > lR){
+			// 重合
+			per = 0;
+		}else{
+			if(lL < rL){
+				per = (lR - rL)/d;
+			}else if(rR > lL){
+				per = (rR - lL)/d;
+			}
+		}
+		self.change(per);
+	},
+	change:function(vol){
+		// console.log(per);
+		var audio = document.getElementsByTagName('audio')[0];
+		var per = document.getElementsByClassName('per')[0];
+		var body = document.getElementsByTagName('body')[0];
+		var r = this.r;
+		// var l = this.l;
+		vol > 0 ? audio.play() : audio.pause();
+		audio.volume = vol;
+		var str = "Volume: " + (vol * 100).toPrecision(4) + "%";
+		per.innerHTML = str;
+		r.style.background = "hsl(194,66%," + (1 - vol) * 60 + "%)";
+		body.style.background = "hsl(" + (194 + Math.floor(166 * vol)) + ", 66%, " + (1 - vol) * 50 + "%)";
+		html.style.background = "hsl(" + (194 + Math.floor(166 * vol)) + ", 66%, " + (1 - vol) * 50 + "%)";
+	}
+}
+
+obj.init();
+
+	<script type="text/javascript" src="demo.js"></script>
+</body>
+</html>
